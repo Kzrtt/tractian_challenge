@@ -1,5 +1,5 @@
 # TRACTIAN CHALLENGE
-Esse repositório é referente ao ![desafio mobile](https://github.com/tractian/challenges/blob/main/mobile/README.md)
+Esse repositório é referente ao [desafio mobile](https://github.com/tractian/challenges/blob/main/mobile/README.md)
 <br>
 <br>
 
