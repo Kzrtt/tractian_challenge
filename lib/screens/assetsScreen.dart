@@ -66,7 +66,7 @@ class _AssetsScreenState extends ConsumerState<AssetsScreen> {
                         ],
                       )
                     : const Center(),
-            asset.status != "alert"
+            asset.status == "alert"
                 ? const Row(
                     children: [
                       SizedBox(width: 10),
@@ -183,11 +183,11 @@ class _AssetsScreenState extends ConsumerState<AssetsScreen> {
                     child: TextFormField(
                       controller: searchController,
                       onChanged: (value) {
-                        if (value != "") {
-                          ref.read(assetsScreenProvider).filterLocations(value, "", "");
-                        } else {
-                          ref.read(assetsScreenProvider).resetList();
-                        }
+                        Future.delayed(const Duration(seconds: 2), () {
+                          if (value != "") {
+                            ref.read(assetsScreenProvider).filterLocations(value);
+                          }
+                        });
                       },
                       decoration: InputDecoration(
                         filled: true,
@@ -218,7 +218,7 @@ class _AssetsScreenState extends ConsumerState<AssetsScreen> {
                           height: 40,
                           width: 200,
                           borderRadius: 10,
-                          onTap: () => screenProvider.toggleEletricButton(),
+                          onTap: () => screenProvider.toggleEletricButton(searchController.text),
                           icon: Icons.bolt_outlined,
                           iconSize: 25,
                           textColor: screenModel.isToggledEnergy ? Colors.blue : Colors.grey,
@@ -231,7 +231,7 @@ class _AssetsScreenState extends ConsumerState<AssetsScreen> {
                           height: 40,
                           width: 150,
                           borderRadius: 10,
-                          onTap: () => screenProvider.toggleCriticButton(),
+                          onTap: () => screenProvider.toggleCriticButton(searchController.text),
                           icon: Icons.error_outline,
                           iconSize: 25,
                           textColor: screenModel.isToggledCritic ? Colors.red : Colors.grey,
@@ -253,12 +253,25 @@ class _AssetsScreenState extends ConsumerState<AssetsScreen> {
                           height: 40,
                           width: 200,
                           borderRadius: 10,
-                          onTap: () => screenProvider.toggleVibrationButton(),
+                          onTap: () => screenProvider.toggleVibrationButton(searchController.text),
                           icon: Icons.vibration_outlined,
                           iconSize: 25,
                           textColor: screenModel.isToggledVibration ? Colors.green : Colors.grey,
                           iconColor: screenModel.isToggledVibration ? Colors.green : Colors.grey,
                           borderColor: screenModel.isToggledVibration ? Colors.green : Colors.grey,
+                          buttonColor: Colors.transparent,
+                        ),
+                        ButtonWithIcon(
+                          buttonText: "Resetar",
+                          height: 40,
+                          width: 150,
+                          borderRadius: 10,
+                          onTap: () => screenProvider.resetList(),
+                          icon: Icons.restart_alt,
+                          iconSize: 25,
+                          textColor: Colors.grey,
+                          iconColor: Colors.grey,
+                          borderColor: Colors.grey,
                           buttonColor: Colors.transparent,
                         ),
                       ],

@@ -39,6 +39,9 @@ class AssetsScreenProvider extends ValueNotifier<AssetsScreenModel> {
   //? Método para limpar a busca
   void resetList() {
     value.visualizationLocationList = value.baseLocationList;
+    value.isToggledCritic = false;
+    value.isToggledEnergy = false;
+    value.isToggledVibration = false;
     notifyListeners();
   }
 
@@ -55,135 +58,100 @@ class AssetsScreenProvider extends ValueNotifier<AssetsScreenModel> {
     }
   }
 
-  //? Métodos da busca por texto
-  void filterLocations(String text, String btnType, String val) {
-    String searchQuery = text.toLowerCase();
-    if (text != "") {
-      value.visualizationLocationList = value.visualizationLocationList.where((location) {
-        return _applySearchFilter(location, searchQuery);
-      }).toList();
-    }
-    if (val != "" && btnType != "") {
-      value.visualizationLocationList = value.visualizationLocationList.where((location) {
-        return _applySearchFilterViaButton(location, btnType, val);
-      }).toList();
-    }
+  //? Métodos que filtram a arvore de assets
+  void filterLocations(String search) {
+    search = search.toLowerCase(); // Normaliza a string de busca para comparação case-insensitive
+    value.visualizationLocationList = _filterLocationsRecursive(value.baseLocationList, search);
     notifyListeners();
   }
 
-  bool _applySearchFilter(Location location, String query) {
-    bool response = false;
-    if (location.name.toLowerCase().contains(query)) {
-      response = true;
-    }
-    for (var asset in location.assetLists) {
-      if (asset.name.toLowerCase().contains(query)) {
-        response = true;
-      } else {
-        response = validateAssets(asset.assetList, query);
+  List<Location> _filterLocationsRecursive(List<Location> locations, String search) {
+    List<Location> filteredList = [];
+
+    for (var location in locations) {
+      bool matchesQuery = location.name.toLowerCase().contains(search);
+
+      // Filtra a lista de assets desta localização, incluindo subAssets recursivamente
+      List<Asset> filteredAssets = _filterAssetsRecursive(location.assetLists, search);
+
+      // Filtra a lista de child locations recursivamente
+      List<Location> filteredChildLocations = _filterLocationsRecursive(location.childLocations, search);
+
+      // Adiciona à lista filtrada se a localização, seus assets ou filhos correspondem ao critério de busca
+      if ((matchesQuery && (filteredAssets.isNotEmpty || filteredChildLocations.isNotEmpty)) || filteredAssets.isNotEmpty || filteredChildLocations.isNotEmpty) {
+        location = Location(
+          id: location.id,
+          name: location.name,
+          parentId: location.parentId,
+          childLocations: filteredChildLocations,
+          assetLists: filteredAssets,
+        );
+        filteredList.add(location);
       }
     }
-    for (var child in location.childLocations) {
-      if (_applySearchFilter(child, query)) {
-        response = true;
-      }
-    }
-    return response;
+
+    return filteredList;
   }
 
-  bool validateAssets(List<Asset> assetList, String text) {
-    bool response = false;
-    for (var asset in assetList) {
-      if (asset.name.toLowerCase().contains(text)) {
-        response = true;
-      }
-      if (asset.assetList.isNotEmpty) {
-        validateAssets(asset.assetList, text);
+  List<Asset> _filterAssetsRecursive(List<Asset> assets, String search) {
+    List<Asset> filteredList = [];
+
+    for (var asset in assets) {
+      bool matchesQuery = asset.name.toLowerCase().contains(search);
+
+      // Verifica os filtros adicionais
+      bool matchesCritic = !value.isToggledCritic || asset.status == "alert";
+      bool matchesEnergy = !value.isToggledEnergy || asset.sensorType == "energy";
+      bool matchesVibration = !value.isToggledVibration || asset.sensorType == "vibration";
+
+      // Filtra a lista de subAssets recursivamente
+      List<Asset> filteredSubAssets = _filterAssetsRecursive(asset.assetList, search);
+
+      // Adiciona à lista filtrada se o asset ou seus subAssets correspondem ao critério de busca e filtros
+      if ((matchesQuery || search.isEmpty) && matchesCritic && matchesVibration && matchesEnergy || filteredSubAssets.isNotEmpty) {
+        asset = Asset(
+          id: asset.id,
+          name: asset.name,
+          locationId: asset.locationId,
+          assetList: filteredSubAssets,
+          parentId: asset.parentId,
+          sensorType: asset.sensorType,
+          status: asset.status,
+        );
+        filteredList.add(asset);
       }
     }
-    return response;
+
+    return filteredList;
   }
 
-  //! -------------------------------------------------------------------------- !//
+  //! ---------------------------------------------------------------------------------------------------- !//
+  //! Botões da Tela
 
-  //? Métodos de busca para os botões
-  bool _applySearchFilterViaButton(Location location, String btnType, String val) {
-    bool response = false;
-    if (btnType == "sensorType") {
-      for (var asset in location.assetLists) {
-        if (asset.sensorType.toLowerCase().contains(val)) {
-          response = true;
-        } else {
-          response = validateAssetsViaButton(asset.assetList, btnType, val);
-        }
-      }
-      for (var child in location.childLocations) {
-        if (_applySearchFilterViaButton(child, btnType, val)) {
-          response = true;
-        }
-      }
-    } else if (btnType == "status") {
-      for (var asset in location.assetLists) {
-        if (asset.status.toLowerCase().contains(val)) {
-          response = true;
-        } else {
-          response = validateAssetsViaButton(asset.assetList, btnType, val);
-        }
-      }
-      for (var child in location.childLocations) {
-        if (_applySearchFilterViaButton(child, btnType, val)) {
-          response = true;
-        }
-      }
-    }
-    return response;
+  filtterButton(String text) {
+    filterLocations(text);
   }
 
-  bool validateAssetsViaButton(List<Asset> assetList, String btnType, String val) {
-    bool response = false;
-    for (var asset in assetList) {
-      if (btnType == "sensorType") {
-        if (asset.sensorType.toLowerCase().contains(val)) {
-          response = true;
-        }
-      } else if (btnType == "status") {
-        if (asset.status.toLowerCase().contains(val)) {
-          response = true;
-        }
-      }
-      if (asset.assetList.isNotEmpty) {
-        validateAssetsViaButton(asset.assetList, btnType, val);
-      }
-    }
-    return response;
-  }
-
-  toggleEletricButton() {
+  toggleEletricButton(String currenttext) {
     value.isToggledEnergy = !value.isToggledEnergy;
     if (value.isToggledEnergy) {
-      filterLocations("", "sensorType", "energy");
-    } else {
-      resetList();
+      filtterButton(currenttext);
     }
     notifyListeners();
   }
 
-  toggleCriticButton() {
+  toggleCriticButton(String currenttext) {
     value.isToggledCritic = !value.isToggledCritic;
     if (value.isToggledCritic) {
-      filterLocations("", "status", "alert");
-    } else {
-      resetList();
+      filtterButton(currenttext);
     }
     notifyListeners();
   }
 
-  toggleVibrationButton() {
+  toggleVibrationButton(String currenttext) {
     value.isToggledVibration = !value.isToggledVibration;
     if (value.isToggledVibration) {
-      filterLocations("", "sensorType", "vibration");
-    } else {
-      resetList();
+      filtterButton(currenttext);
     }
     notifyListeners();
   }
