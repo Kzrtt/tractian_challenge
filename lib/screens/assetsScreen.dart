@@ -184,7 +184,7 @@ class _AssetsScreenState extends ConsumerState<AssetsScreen> {
                       controller: searchController,
                       onChanged: (value) {
                         if (value != "") {
-                          ref.read(assetsScreenProvider).searchInList(value);
+                          ref.read(assetsScreenProvider).filterLocations(value, "", "");
                         } else {
                           ref.read(assetsScreenProvider).resetList();
                         }
@@ -237,6 +237,28 @@ class _AssetsScreenState extends ConsumerState<AssetsScreen> {
                           textColor: screenModel.isToggledCritic ? Colors.red : Colors.grey,
                           iconColor: screenModel.isToggledCritic ? Colors.red : Colors.grey,
                           borderColor: screenModel.isToggledCritic ? Colors.red : Colors.grey,
+                          buttonColor: Colors.transparent,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        ButtonWithIcon(
+                          buttonText: "Sensor de Vibração",
+                          height: 40,
+                          width: 200,
+                          borderRadius: 10,
+                          onTap: () => screenProvider.toggleVibrationButton(),
+                          icon: Icons.vibration_outlined,
+                          iconSize: 25,
+                          textColor: screenModel.isToggledVibration ? Colors.green : Colors.grey,
+                          iconColor: screenModel.isToggledVibration ? Colors.green : Colors.grey,
+                          borderColor: screenModel.isToggledVibration ? Colors.green : Colors.grey,
                           buttonColor: Colors.transparent,
                         ),
                       ],
