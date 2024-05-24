@@ -92,15 +92,16 @@ class AssetsScreenProvider extends ValueNotifier<AssetsScreenModel> {
   }
 
   bool validateAssets(List<Asset> assetList, String text) {
+    bool response = false;
     for (var asset in assetList) {
       if (asset.name.toLowerCase().contains(text)) {
-        return true;
+        response = true;
       }
       if (asset.assetList.isNotEmpty) {
         validateAssets(asset.assetList, text);
       }
     }
-    return false;
+    return response;
   }
 
   //! -------------------------------------------------------------------------- !//
@@ -139,21 +140,22 @@ class AssetsScreenProvider extends ValueNotifier<AssetsScreenModel> {
   }
 
   bool validateAssetsViaButton(List<Asset> assetList, String btnType, String val) {
+    bool response = false;
     for (var asset in assetList) {
       if (btnType == "sensorType") {
         if (asset.sensorType.toLowerCase().contains(val)) {
-          return true;
+          response = true;
         }
       } else if (btnType == "status") {
         if (asset.status.toLowerCase().contains(val)) {
-          return true;
+          response = true;
         }
       }
       if (asset.assetList.isNotEmpty) {
         validateAssetsViaButton(asset.assetList, btnType, val);
       }
     }
-    return false;
+    return response;
   }
 
   toggleEletricButton() {
