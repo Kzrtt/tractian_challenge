@@ -4,9 +4,9 @@ Esse repositório é referente ao [desafio mobile](https://github.com/tractian/c
 <br>
 
 # Biliotecas Utilizadas
-- Dio, para chamdas na API fornecida
+- Dio, para chamadas na API fornecida
 - Riverpod, para a gerência de estado da aplicação
-- GoRouter, para a navigação da aplicação
+- GoRouter, para a navegação da aplicação
 <br>
 
 # Imagens da Minha Resolução:
