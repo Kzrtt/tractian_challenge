@@ -20,3 +20,7 @@ Esse repositório é referente ao [desafio mobile](https://github.com/tractian/c
   <img src="https://github.com/Kzrtt/tractian_challenge/blob/main/assets/captura6.png" alt="Imagem 6" width="300" />
   <img src="https://github.com/Kzrtt/tractian_challenge/blob/main/assets/captura7.png" alt="Imagem 7" width="300" />
 </p>
+
+
+https://github.com/Kzrtt/tractian_challenge/assets/99203878/5e581e5a-6c55-4254-8d65-18645e430a71
+
